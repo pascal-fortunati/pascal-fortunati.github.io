@@ -1,0 +1,61 @@
+html {
+    scroll-behavior: smooth;
+}
+.cyber-border {
+    border: 1px solid rgba(0, 212, 255, 0.5);
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+}
+.matrix-bg {
+    background-image: 
+    linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+    background-size: 50px 50px;
+}
+.code-rain {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #00d4ff;
+    white-space: nowrap;
+    overflow: hidden;
+}
+.bg-dark {
+    background: linear-gradient(135deg, #0d1929 0%, #1a2332 50%, #0d1929 100%);
+}
+
+h1 {
+    color: #00eaff;
+}
+h5 {
+    color: #ffffff;
+}
+p {
+    color: #d0d0d0;
+}
+
+.btn-primary {
+    background-color: #00d4ff;
+    border-color: #00d4ff;
+    color: #0d1929;
+    font-weight: bold;
+}
+.btn-primary:hover {
+    background-color: #00aacc;
+    border-color: #00aacc;
+    color: #fff;
+}
+
+.card {
+    background-color: rgba(15, 25, 40, 0.95);
+    color: #fff;
+}
+
+.terminal-cursor {
+    animation: blink 1s infinite;
+    color: #00eaff;
+    font-weight: bold;
+    font-size: 30px;
+}
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
