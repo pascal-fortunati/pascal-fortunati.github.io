@@ -30,7 +30,7 @@ const projects = [
     },
     {
     name: "fansite",
-    url: "https://github.com/pascal-fortunati/runtrack1-jour-3",
+    url: "https://github.com/pascal-fortunati/fansite",
     description: "projet fansite sur one piece",
     img: "img/projet6.jpg",
     type: "Voir sur Github"
