@@ -27,6 +27,13 @@ const projects = [
     description: "Exercices et code du jour 5 jour-git",
     img: "img/projet5.jpg",
     type: "Voir Démo"
+    },
+    {
+    name: "fansite",
+    url: "https://github.com/pascal-fortunati/runtrack1-jour-3",
+    description: "projet fansite sur one piece",
+    img: "img/projet6.jpg",
+    type: "Voir sur Github"
     }
 ];
 
