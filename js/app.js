@@ -36,7 +36,7 @@ const projects = [
     type: "Voir sur Github"
     },
     {
-    name: "vitrine",
+    name: "vitrine apps",
     url: "https://pascal-fortunati.github.io/vitirine",
     description: "projet application mobile favoris",
     img: "img/projet7.jpg",
