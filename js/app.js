@@ -34,6 +34,13 @@ const projects = [
     description: "projet fansite sur one piece",
     img: "img/projet6.jpg",
     type: "Voir sur Github"
+    },
+    {
+    name: "vitrine",
+    url: "https://github.com/pascal-fortunati/vitrine",
+    description: "projet application mobile favoris",
+    img: "img/projet7.jpg",
+    type: "Voir Démo"
     }
 ];
 
