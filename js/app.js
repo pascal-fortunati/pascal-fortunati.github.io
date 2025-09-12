@@ -41,6 +41,13 @@ const projects = [
     description: "projet application mobile favoris",
     img: "img/projet7.jpg",
     type: "Voir Démo"
+    },
+    {
+    name: "Projet voyage",
+    url: "https://pascal-fortunati.github.io/projet-voyage",
+    description: "projet vitrine agence de voyage",
+    img: "img/projet8.jpg",
+    type: "Voir Démo"
     }
 ];
 
