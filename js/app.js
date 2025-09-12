@@ -44,7 +44,7 @@ const projects = [
     },
     {
     name: "Projet voyage",
-    url: "https://pascal-fortunati.github.io/projet-voyage",
+    url: "https://pascal-fortunati.github.io/projet-voyages",
     description: "projet vitrine agence de voyage",
     img: "img/projet8.jpg",
     type: "Voir Démo"
