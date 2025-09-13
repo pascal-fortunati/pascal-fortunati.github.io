@@ -7,22 +7,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     const loginError = document.getElementById('login-error');
 
-    // Fonction pour afficher le panneau admin
     function showAdminPanel() {
         loginContainer.style.display = 'none';
         adminContainer.style.display = 'flex';
         document.body.classList.remove('login-active');
-        initAdmin(); // ⚠️ ta fonction d'initialisation admin
+        initAdmin(); // Lance l’interface admin seulement une fois connecté
     }
 
-    // Si déjà connecté (stocké dans localStorage)
     if (localStorage.getItem('isLoggedIn') === 'true') {
         showAdminPanel();
     } else {
         document.body.classList.add('login-active');
     }
 
-    // Tentative de connexion
     loginForm.addEventListener('submit', e => {
         e.preventDefault();
         const user = document.getElementById('username').value.trim();
@@ -36,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- Déconnexion ---
+    // Bouton de déconnexion
     const sidebar = document.querySelector('.sidebar');
     const logoutBtn = document.createElement('button');
     logoutBtn.textContent = '🔒 Déconnexion';
@@ -47,22 +44,29 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     sidebar.appendChild(logoutBtn);
 
-    // --- Admin & GitHub ---
+    // ----------- PANEL ADMIN -------------
     function initAdmin() {
         const GITHUB_TOKEN = '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';
         const REPO_OWNER = 'pascal-fortunati';
         const REPO_NAME = 'pascal-fortunati.github.io';
         const FILE_PATH = 'projects.json';
+
         let fileSha = '';
         let data = { formation: [], personnel: [] };
 
         async function loadData() {
-            const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`);
-            const json = await res.json();
-            fileSha = json.sha;
-            const decoded = atob(json.content.replace(/\n/g, ''));
-            data = JSON.parse(decoded);
-            render();
+            try {
+                const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`);
+                const json = await res.json();
+                if (!res.ok) throw new Error(json.message);
+                fileSha = json.sha;
+                const decoded = atob(json.content.replace(/\n/g, ''));
+                data = JSON.parse(decoded);
+                render();
+            } catch (e) {
+                console.error('Erreur chargement JSON', e);
+                alert("Impossible de charger projects.json");
+            }
         }
 
         function render() {
@@ -80,14 +84,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td><input class="form-control form-control-sm" value="${p.description}" oninput="update('${cat}',${i},'description',this.value)"></td>
                     <td><input class="form-control form-control-sm" value="${p.img}" oninput="update('${cat}',${i},'img',this.value)"></td>
                     <td><input class="form-control form-control-sm" value="${p.type}" oninput="update('${cat}',${i},'type',this.value)"></td>
-                    <td><button class="btn btn-sm btn-danger" onclick="remove('${cat}',${i})">🗑 supprimer</button></td>
+                    <td><button class="btn btn-sm btn-danger" onclick="remove('${cat}',${i})">🗑</button></td>
                 </tr>`;
             });
         }
 
-        function update(cat, i, field, value) { data[cat][i][field] = value; }
-        function remove(cat, i) { data[cat].splice(i, 1); render(); }
-        function add(cat) { data[cat].push({ name: '', url: '', description: '', img: '', type: '' }); render(); }
+        // <<< RENDRE GLOBALES >>>
+        window.update = (cat, i, field, value) => { data[cat][i][field] = value; };
+        window.remove = (cat, i) => { data[cat].splice(i, 1); render(); };
+        window.add = cat => { data[cat].push({ name: '', url: '', description: '', img: '', type: '' }); render(); };
 
         async function updateGitHubFile(newData) {
             const content = btoa(JSON.stringify(newData, null, 2));
@@ -104,11 +109,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('projects.json mis à jour ✅');
                 fileSha = result.content.sha;
             } else {
+                console.error(result);
                 alert('Erreur: ' + JSON.stringify(result));
             }
         }
 
-        document.getElementById('exportBtn').onclick = async () => { await updateGitHubFile(data); };
+        document.getElementById('exportBtn').onclick = () => updateGitHubFile(data);
 
         window.showSection = cat => {
             document.getElementById('section-formation').style.display = cat === 'formation' ? 'block' : 'none';
@@ -116,10 +122,6 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('link-formation').classList.toggle('active', cat === 'formation');
             document.getElementById('link-personnel').classList.toggle('active', cat === 'personnel');
         };
-
-        window.add = add;
-        window.update = update;
-        window.remove = remove;
 
         loadData();
     }
