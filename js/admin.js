@@ -1,40 +1,41 @@
-// Login côté client avec session persistante
-const LOGIN_USER = 'zeigadis';
-const LOGIN_PASS = 'pasonnic83';
+document.addEventListener('DOMContentLoaded', () => {
+    const LOGIN_USER = 'zeigadis';
+    const LOGIN_PASS = 'pasonnic83';
 
-function showAdminPanel() {
-    document.getElementById('login-container').style.display = 'none';
-    document.getElementById('admin-container').style.display = 'flex';
-}
-
-// Vérifier session existante
-if (localStorage.getItem('isLoggedIn') === 'true') {
-    showAdminPanel();
-}
-
-document.getElementById('login-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const user = document.getElementById('username').value;
-    const pass = document.getElementById('password').value;
-
-    if (user === LOGIN_USER && pass === LOGIN_PASS) {
-        localStorage.setItem('isLoggedIn', 'true'); // mémoriser session
-        showAdminPanel();
-    } else {
-        document.getElementById('login-error').style.display = 'block';
+    function showAdminPanel() {
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('admin-container').style.display = 'flex';
     }
-});
 
-// Ajouter bouton de déconnexion
-const sidebar = document.querySelector('.sidebar');
-const logoutBtn = document.createElement('button');
-logoutBtn.textContent = '🔒 Déconnexion';
-logoutBtn.className = 'btn btn-warning mt-3';
-logoutBtn.onclick = () => {
-    localStorage.removeItem('isLoggedIn');
-    location.reload();
-};
-sidebar.appendChild(logoutBtn);
+    // Vérifier session existante
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+        showAdminPanel();
+    }
+
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const user = document.getElementById('username').value;
+        const pass = document.getElementById('password').value;
+
+        if (user === LOGIN_USER && pass === LOGIN_PASS) {
+            localStorage.setItem('isLoggedIn', 'true'); // mémoriser session
+            showAdminPanel();
+        } else {
+            document.getElementById('login-error').style.display = 'block';
+        }
+    });
+
+    // Ajouter bouton de déconnexion
+    const sidebar = document.querySelector('.sidebar');
+    const logoutBtn = document.createElement('button');
+    logoutBtn.textContent = '🔒 Déconnexion';
+    logoutBtn.className = 'btn btn-warning mt-3';
+    logoutBtn.onclick = () => {
+        localStorage.removeItem('isLoggedIn');
+        location.reload();
+    };
+    sidebar.appendChild(logoutBtn);
+});
 
 
 const GITHUB_TOKEN = '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';
