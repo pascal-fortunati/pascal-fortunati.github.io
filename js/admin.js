@@ -1,29 +1,38 @@
 document.addEventListener('DOMContentLoaded', () => {
-
-    document.body.classList.add('login-active');
-
-    // --- Login ---
     const LOGIN_USER = 'zeigadis';
     const LOGIN_PASS = 'pasonnic83';
 
-    function showAdminPanel() {
-        document.getElementById('login-container').style.display = 'none';
-        document.getElementById('admin-container').style.display = 'flex';
-        document.body.classList.remove('login-active'); // retire la classe overlay
-        initAdmin(); // si tu charges l'admin à ce moment
-    }
-    // session persistante
-    if (localStorage.getItem('isLoggedIn') === 'true') showAdminPanel();
+    const loginContainer = document.getElementById('login-container');
+    const adminContainer = document.getElementById('admin-container');
+    const loginForm = document.getElementById('login-form');
+    const loginError = document.getElementById('login-error');
 
-    document.getElementById('login-form').addEventListener('submit', e => {
+    // Fonction pour afficher le panneau admin
+    function showAdminPanel() {
+        loginContainer.style.display = 'none';
+        adminContainer.style.display = 'flex';
+        document.body.classList.remove('login-active');
+        initAdmin(); // ⚠️ ta fonction d'initialisation admin
+    }
+
+    // Si déjà connecté (stocké dans localStorage)
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+        showAdminPanel();
+    } else {
+        document.body.classList.add('login-active');
+    }
+
+    // Tentative de connexion
+    loginForm.addEventListener('submit', e => {
         e.preventDefault();
-        const user = document.getElementById('username').value;
-        const pass = document.getElementById('password').value;
+        const user = document.getElementById('username').value.trim();
+        const pass = document.getElementById('password').value.trim();
+
         if (user === LOGIN_USER && pass === LOGIN_PASS) {
             localStorage.setItem('isLoggedIn', 'true');
             showAdminPanel();
         } else {
-            document.getElementById('login-error').style.display = 'block';
+            loginError.style.display = 'block';
         }
     });
 
@@ -32,12 +41,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoutBtn = document.createElement('button');
     logoutBtn.textContent = '🔒 Déconnexion';
     logoutBtn.className = 'btn btn-warning mt-3';
-    logoutBtn.onclick = () => { localStorage.removeItem('isLoggedIn'); location.reload(); };
+    logoutBtn.onclick = () => {
+        localStorage.removeItem('isLoggedIn');
+        location.reload();
+    };
     sidebar.appendChild(logoutBtn);
 
     // --- Admin & GitHub ---
     function initAdmin() {
-
         const GITHUB_TOKEN = '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';
         const REPO_OWNER = 'pascal-fortunati';
         const REPO_NAME = 'pascal-fortunati.github.io';
@@ -89,8 +100,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ message: 'Mise à jour depuis Admin Panel', content, sha: fileSha })
             });
             const result = await res.json();
-            if (res.ok) { alert('projects.json mis à jour ✅'); fileSha = result.content.sha; }
-            else { alert('Erreur: ' + JSON.stringify(result)); }
+            if (res.ok) {
+                alert('projects.json mis à jour ✅');
+                fileSha = result.content.sha;
+            } else {
+                alert('Erreur: ' + JSON.stringify(result));
+            }
         }
 
         document.getElementById('exportBtn').onclick = async () => { await updateGitHubFile(data); };
@@ -98,10 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
         window.showSection = cat => {
             document.getElementById('section-formation').style.display = cat === 'formation' ? 'block' : 'none';
             document.getElementById('section-personnel').style.display = cat === 'personnel' ? 'block' : 'none';
-            document.getElementById('link-formation').classList.remove('active');
-            document.getElementById('link-personnel').classList.remove('active');
-            if (cat === 'formation') document.getElementById('link-formation').classList.add('active');
-            if (cat === 'personnel') document.getElementById('link-personnel').classList.add('active');
+            document.getElementById('link-formation').classList.toggle('active', cat === 'formation');
+            document.getElementById('link-personnel').classList.toggle('active', cat === 'personnel');
         };
 
         window.add = add;
