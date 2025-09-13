@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loginContainer.style.display = 'none';
         adminContainer.style.display = 'flex';
         document.body.classList.remove('login-active');
-        initAdmin(); // Lance l’interface admin seulement une fois connecté
+        initAdmin();
     }
 
     if (localStorage.getItem('isLoggedIn') === 'true') {
@@ -54,28 +54,83 @@ document.addEventListener('DOMContentLoaded', () => {
         let fileSha = '';
         let data = { formation: [], personnel: [] };
 
-        async function loadData() {
-            try {
-                const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
-                    headers: {
-                        'Authorization': `Bearer ${GITHUB_TOKEN}`,
-                        'Accept': 'application/vnd.github+json'
-                    }
-                });
+        // Fonction pour faire les requêtes avec gestion CORS
+        async function makeGitHubRequest(url, options = {}) {
+            // Options par défaut avec headers CORS
+            const defaultOptions = {
+                headers: {
+                    'Authorization': `Bearer ${GITHUB_TOKEN}`,
+                    'Accept': 'application/vnd.github+json',
+                    'X-GitHub-Api-Version': '2022-11-28',
+                    // Headers CORS
+                    'Content-Type': 'application/json',
+                },
+                ...options
+            };
 
-                if (!res.ok) {
-                    const errorData = await res.json();
-                    throw new Error(`HTTP ${res.status}: ${errorData.message}`);
+            try {
+                const response = await fetch(url, defaultOptions);
+
+                // Log des headers pour debug
+                console.log('Status:', response.status);
+                console.log('Rate limit restant:', response.headers.get('X-RateLimit-Remaining'));
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(`HTTP ${response.status}: ${errorData.message || 'Erreur inconnue'}`);
                 }
 
-                const json = await res.json();
+                return await response.json();
+            } catch (error) {
+                // Si CORS bloque, essayer avec un proxy (développement uniquement)
+                if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
+                    console.warn('Tentative avec proxy CORS...');
+                    const proxyUrl = 'https://api.allorigins.win/raw?url=';
+                    const proxiedResponse = await fetch(proxyUrl + encodeURIComponent(url), defaultOptions);
+                    if (!proxiedResponse.ok) throw error;
+                    return await proxiedResponse.json();
+                }
+                throw error;
+            }
+        }
+
+        async function loadData() {
+            try {
+                console.log('Chargement des données...');
+
+                // Première tentative : URL directe pour la lecture (évite CORS)
+                try {
+                    const directUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${FILE_PATH}?_=${Date.now()}`;
+                    const response = await fetch(directUrl);
+                    if (response.ok) {
+                        data = await response.json();
+                        console.log('Données chargées via URL directe');
+
+                        // Récupérer le SHA séparément pour les mises à jour
+                        const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
+                        const shaResponse = await makeGitHubRequest(apiUrl);
+                        fileSha = shaResponse.sha;
+
+                        render();
+                        return;
+                    }
+                } catch (e) {
+                    console.log('URL directe échouée, tentative API...');
+                }
+
+                // Deuxième tentative : API GitHub
+                const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
+                const json = await makeGitHubRequest(apiUrl);
+
                 fileSha = json.sha;
                 const decoded = atob(json.content.replace(/\n/g, ''));
                 data = JSON.parse(decoded);
+                console.log('Données chargées via API');
                 render();
+
             } catch (e) {
-                console.error('Erreur chargement JSON', e);
-                alert("Impossible de charger projects.json");
+                console.error('Erreur chargement JSON:', e);
+                alert(`Impossible de charger projects.json: ${e.message}`);
             }
         }
 
@@ -86,53 +141,87 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function renderTable(cat) {
             const tbody = document.querySelector(`#table-${cat} tbody`);
+            if (!tbody) return;
+
             tbody.innerHTML = '';
             data[cat].forEach((p, i) => {
                 tbody.innerHTML += `<tr>
-                    <td><input class="form-control form-control-sm" value="${p.name}" oninput="update('${cat}',${i},'name',this.value)"></td>
-                    <td><input class="form-control form-control-sm" value="${p.url}" oninput="update('${cat}',${i},'url',this.value)"></td>
-                    <td><input class="form-control form-control-sm" value="${p.description}" oninput="update('${cat}',${i},'description',this.value)"></td>
-                    <td><input class="form-control form-control-sm" value="${p.img}" oninput="update('${cat}',${i},'img',this.value)"></td>
-                    <td><input class="form-control form-control-sm" value="${p.type}" oninput="update('${cat}',${i},'type',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.name || ''}" oninput="update('${cat}',${i},'name',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.url || ''}" oninput="update('${cat}',${i},'url',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.description || ''}" oninput="update('${cat}',${i},'description',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.img || ''}" oninput="update('${cat}',${i},'img',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.type || ''}" oninput="update('${cat}',${i},'type',this.value)"></td>
                     <td><button class="btn btn-sm btn-danger" onclick="remove('${cat}',${i})">🗑</button></td>
                 </tr>`;
             });
         }
 
-        // <<< RENDRE GLOBALES >>>
-        window.update = (cat, i, field, value) => { data[cat][i][field] = value; };
-        window.remove = (cat, i) => { data[cat].splice(i, 1); render(); };
-        window.add = cat => { data[cat].push({ name: '', url: '', description: '', img: '', type: '' }); render(); };
+        // Fonctions globales
+        window.update = (cat, i, field, value) => {
+            if (data[cat] && data[cat][i]) {
+                data[cat][i][field] = value;
+            }
+        };
+
+        window.remove = (cat, i) => {
+            if (data[cat]) {
+                data[cat].splice(i, 1);
+                render();
+            }
+        };
+
+        window.add = cat => {
+            if (data[cat]) {
+                data[cat].push({ name: '', url: '', description: '', img: '', type: '' });
+                render();
+            }
+        };
 
         async function updateGitHubFile(newData) {
-            const content = btoa(JSON.stringify(newData, null, 2));
-            const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `token ${GITHUB_TOKEN}`,
-                    'Accept': 'application/vnd.github+json'
-                },
-                body: JSON.stringify({ message: 'Mise à jour depuis Admin Panel', content, sha: fileSha })
-            });
-            const result = await res.json();
-            if (res.ok) {
-                alert('projects.json mis à jour ✅');
+            try {
+                console.log('Mise à jour du fichier...');
+
+                const content = btoa(JSON.stringify(newData, null, 2));
+                const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
+
+                const result = await makeGitHubRequest(apiUrl, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        message: `Mise à jour depuis Admin Panel - ${new Date().toLocaleString()}`,
+                        content,
+                        sha: fileSha
+                    })
+                });
+
+                alert('✅ projects.json mis à jour avec succès !');
                 fileSha = result.content.sha;
-            } else {
-                console.error(result);
-                alert('Erreur: ' + JSON.stringify(result));
+                console.log('Fichier mis à jour, nouveau SHA:', fileSha);
+
+            } catch (error) {
+                console.error('Erreur mise à jour:', error);
+                alert(`❌ Erreur lors de la mise à jour: ${error.message}`);
             }
         }
 
-        document.getElementById('exportBtn').onclick = () => updateGitHubFile(data);
+        // Event listeners
+        const exportBtn = document.getElementById('exportBtn');
+        if (exportBtn) {
+            exportBtn.onclick = () => updateGitHubFile(data);
+        }
 
         window.showSection = cat => {
-            document.getElementById('section-formation').style.display = cat === 'formation' ? 'block' : 'none';
-            document.getElementById('section-personnel').style.display = cat === 'personnel' ? 'block' : 'none';
-            document.getElementById('link-formation').classList.toggle('active', cat === 'formation');
-            document.getElementById('link-personnel').classList.toggle('active', cat === 'personnel');
+            const formationSection = document.getElementById('section-formation');
+            const personnelSection = document.getElementById('section-personnel');
+            const formationLink = document.getElementById('link-formation');
+            const personnelLink = document.getElementById('link-personnel');
+
+            if (formationSection) formationSection.style.display = cat === 'formation' ? 'block' : 'none';
+            if (personnelSection) personnelSection.style.display = cat === 'personnel' ? 'block' : 'none';
+            if (formationLink) formationLink.classList.toggle('active', cat === 'formation');
+            if (personnelLink) personnelLink.classList.toggle('active', cat === 'personnel');
         };
 
+        // Initialisation
         loadData();
     }
 });
