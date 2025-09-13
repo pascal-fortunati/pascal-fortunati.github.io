@@ -1,0 +1,123 @@
+// Login côté client avec session persistante
+const LOGIN_USER = 'zeigadis';
+const LOGIN_PASS = 'pasonnic83';
+
+function showAdminPanel() {
+    document.getElementById('login-container').style.display = 'none';
+    document.getElementById('admin-container').style.display = 'flex';
+}
+
+// Vérifier session existante
+if (localStorage.getItem('isLoggedIn') === 'true') {
+    showAdminPanel();
+}
+
+document.getElementById('login-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const user = document.getElementById('username').value;
+    const pass = document.getElementById('password').value;
+
+    if (user === LOGIN_USER && pass === LOGIN_PASS) {
+        localStorage.setItem('isLoggedIn', 'true'); // mémoriser session
+        showAdminPanel();
+    } else {
+        document.getElementById('login-error').style.display = 'block';
+    }
+});
+
+// Ajouter bouton de déconnexion
+const sidebar = document.querySelector('.sidebar');
+const logoutBtn = document.createElement('button');
+logoutBtn.textContent = '🔒 Déconnexion';
+logoutBtn.className = 'btn btn-warning mt-3';
+logoutBtn.onclick = () => {
+    localStorage.removeItem('isLoggedIn');
+    location.reload();
+};
+sidebar.appendChild(logoutBtn);
+
+
+const GITHUB_TOKEN = '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';
+const REPO_OWNER = 'pascal-fortunati';
+const REPO_NAME = 'pascal-fortunati.github.io';
+const FILE_PATH = 'projects.json';
+let fileSha = '';
+
+let data = { formation: [], personnel: [] };
+
+// Charger le fichier JSON depuis GitHub et récupérer le SHA
+async function loadData() {
+    const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`);
+    const json = await res.json();
+    fileSha = json.sha;
+    const decoded = atob(json.content.replace(/\n/g, ''));
+    data = JSON.parse(decoded);
+    render();
+}
+
+// Rendu global
+function render() {
+    renderTable('formation');
+    renderTable('personnel');
+}
+
+function renderTable(cat) {
+    const tbody = document.querySelector(`#table-${cat} tbody`);
+    tbody.innerHTML = '';
+    data[cat].forEach((p, i) => {
+        tbody.innerHTML += `<tr>
+                    <td><input class="form-control form-control-sm" value="${p.name}" oninput="update('${cat}',${i},'name',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.url}" oninput="update('${cat}',${i},'url',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.description}" oninput="update('${cat}',${i},'description',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.img}" oninput="update('${cat}',${i},'img',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.type}" oninput="update('${cat}',${i},'type',this.value)"></td>
+                    <td><button class="btn btn-sm btn-danger" onclick="remove('${cat}',${i})">🗑 supprimer</button></td>
+                </tr>`;
+    });
+}
+
+// Gestion des données
+function update(cat, i, field, value) { data[cat][i][field] = value; }
+function remove(cat, i) { data[cat].splice(i, 1); render(); }
+function add(cat) { data[cat].push({ name: '', url: '', description: '', img: '', type: '' }); render(); }
+
+// Mettre à jour GitHub
+async function updateGitHubFile(newData) {
+    const content = btoa(JSON.stringify(newData, null, 2));
+    const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `token ${GITHUB_TOKEN}`,
+            'Accept': 'application/vnd.github+json'
+        },
+        body: JSON.stringify({
+            message: 'Mise à jour depuis Admin Panel',
+            content: content,
+            sha: fileSha
+        })
+    });
+    const result = await res.json();
+    if (res.ok) {
+        alert('projects.json mis à jour sur GitHub ✅');
+        fileSha = result.content.sha;
+    } else {
+        alert('Erreur: ' + JSON.stringify(result));
+    }
+}
+
+document.getElementById('exportBtn').onclick = async () => {
+    await updateGitHubFile(data);
+};
+
+// Switch sections avec active
+function showSection(cat) {
+    document.getElementById('section-formation').style.display = cat === 'formation' ? 'block' : 'none';
+    document.getElementById('section-personnel').style.display = cat === 'personnel' ? 'block' : 'none';
+
+    document.getElementById('link-formation').classList.remove('active');
+    document.getElementById('link-personnel').classList.remove('active');
+    if (cat === 'formation') document.getElementById('link-formation').classList.add('active');
+    if (cat === 'personnel') document.getElementById('link-personnel').classList.add('active');
+}
+
+loadData(); // Chargement initial
