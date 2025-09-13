@@ -145,12 +145,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             data[cat].forEach((p, i) => {
                 tbody.innerHTML += `<tr>
-                    <td><input class="form-control form-control-sm" value="${p.name || ''}" oninput="updateItem('${cat}',${i},'name',this.value)"></td>
-                    <td><input class="form-control form-control-sm" value="${p.url || ''}" oninput="updateItem('${cat}',${i},'url',this.value)"></td>
-                    <td><input class="form-control form-control-sm" value="${p.description || ''}" oninput="updateItem('${cat}',${i},'description',this.value)"></td>
-                    <td><input class="form-control form-control-sm" value="${p.img || ''}" oninput="updateItem('${cat}',${i},'img',this.value)"></td>
-                    <td><input class="form-control form-control-sm" value="${p.type || ''}" oninput="updateItem('${cat}',${i},'type',this.value)"></td>
-                    <td><button class="btn btn-sm btn-danger" onclick="removeItem('${cat}',${i})">🗑</button></td>
+                    <td><input class="form-control form-control-sm" value="${p.name || ''}" oninput="update('${cat}',${i},'name',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.url || ''}" oninput="update('${cat}',${i},'url',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.description || ''}" oninput="update('${cat}',${i},'description',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.img || ''}" oninput="update('${cat}',${i},'img',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.type || ''}" oninput="update('${cat}',${i},'type',this.value)"></td>
+                    <td><button class="btn btn-sm btn-danger" onclick="remove('${cat}',${i})">🗑</button></td>
                 </tr>`;
             });
         }

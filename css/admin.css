@@ -10,64 +10,89 @@ body {
     overflow-x: hidden;
 }
 
-/* overlay login au-dessus de tout */
+/* Login container - overlay par défaut */
 #login-container {
     position: fixed;
     inset: 0;
-    display: flex;
+    display: flex !important;
+    /* Force l'affichage initial */
     align-items: center;
     justify-content: center;
-    background: rgba(3, 7, 12);
+    background: rgba(3, 7, 12, 0.95);
     z-index: 9999;
+    transition: opacity 0.3s ease;
 }
 
-/* card plus lisible sur l'overlay */
+/* Masquer le login quand connecté */
+#login-container[style*="display: none"] {
+    display: none !important;
+}
+
+/* Card login */
 #login-container .card {
-    background-color: rgba(12, 18, 28);
-    border: 1px solid rgba(0, 212, 255);
+    background-color: rgba(12, 18, 28, 0.9);
+    border: 1px solid rgba(0, 212, 255, 0.5);
     color: #dfefff;
+    backdrop-filter: blur(10px);
 }
 
-/* admin derrière */
+/* Admin container - masqué par défaut */
 #admin-container {
     position: fixed;
     inset: 0;
-    display: none;
+    display: none !important;
+    /* Force masquage initial */
     z-index: 1;
     overflow: auto;
 }
 
-/* Si besoin : rendre l'admin non-interactif quand login visible */
+/* Afficher l'admin quand activé */
+#admin-container[style*="display: flex"] {
+    display: flex !important;
+}
+
+/* Désactiver l'admin quand login visible */
 body.login-active #admin-container {
     pointer-events: none;
-    opacity: 0.6;
+    opacity: 0.3;
+}
+
+/* Body sans classe login-active */
+body:not(.login-active) #login-container {
+    display: none !important;
+}
+
+body:not(.login-active) #admin-container {
+    display: flex !important;
 }
 
 .sidebar {
-    background-color: rgba(15, 25, 40, 0.75);
+    background-color: rgba(15, 25, 40, 0.9);
     width: 280px;
-    min-width: 150px;
+    min-width: 280px;
     height: 100vh;
+    backdrop-filter: blur(5px);
 }
 
 .table-dark {
     --bs-table-color: #00d4ff;
-    --bs-table-bg: #0d1929;
+    --bs-table-bg: rgba(13, 25, 41, 0.8);
     --bs-table-border-color: #253370;
-    --bs-table-striped-bg: #253370;
+    --bs-table-striped-bg: rgba(37, 51, 112, 0.3);
     --bs-table-striped-color: #00d4ff;
     --bs-table-active-bg: #373b3e;
     --bs-table-active-color: #00d4ff;
-    --bs-table-hover-bg: #323539;
+    --bs-table-hover-bg: rgba(50, 53, 57, 0.5);
     --bs-table-hover-color: #00d4ff;
     color: var(--bs-table-color);
     border-color: var(--bs-table-border-color);
+    backdrop-filter: blur(3px);
 }
-
 
 .sidebar a.nav-link {
     color: #00d4ff;
     text-align: center;
+    transition: all 0.3s ease;
 }
 
 .sidebar a.nav-link.active,
@@ -79,18 +104,59 @@ body.login-active #admin-container {
 h1,
 h2 {
     color: #00eaff;
+    text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
 }
 
-/* Actions */
-
+/* Boutons */
 .btn-info {
     background-color: #00d4ff;
     border-color: #00d4ff;
     color: #0d1929;
     font-weight: bold;
+    transition: all 0.3s ease;
 }
 
 .btn-info:hover {
     background-color: #00aacc;
     color: #fff;
+    transform: translateY(-1px);
+}
+
+.btn-info:disabled {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: #fff;
+    cursor: not-allowed;
+}
+
+/* Amélioration des inputs */
+.form-control-sm {
+    background-color: rgba(13, 25, 41, 0.7);
+    border-color: rgba(0, 212, 255, 0.3);
+    color: #00d4ff;
+}
+
+.form-control-sm:focus {
+    background-color: rgba(13, 25, 41, 0.9);
+    border-color: #00d4ff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 212, 255, 0.25);
+    color: #00d4ff;
+}
+
+/* Scrollbar personnalisée */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(13, 25, 41, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 212, 255, 0.5);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #00d4ff;
 }
