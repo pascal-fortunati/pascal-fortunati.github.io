@@ -46,90 +46,87 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ----------- PANEL ADMIN -------------
     function initAdmin() {
-        const GITHUB_TOKEN = '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'; // Remplacez par votre token
         const REPO_OWNER = 'pascal-fortunati';
         const REPO_NAME = 'pascal-fortunati.github.io';
         const FILE_PATH = 'projects.json';
 
+        let GITHUB_TOKEN = '';
         let fileSha = '';
         let data = { formation: [], personnel: [] };
+        let canSave = false;
 
-        // Fonction pour faire les requêtes avec gestion CORS
-        async function makeGitHubRequest(url, options = {}) {
-            // Options par défaut avec headers CORS
-            const defaultOptions = {
-                headers: {
-                    'Authorization': `Bearer ${GITHUB_TOKEN}`,
-                    'Accept': 'application/vnd.github+json',
-                    'X-GitHub-Api-Version': '2022-11-28',
-                    // Headers CORS
-                    'Content-Type': 'application/json',
-                },
-                ...options
-            };
+        // Demander le token seulement si l'utilisateur veut sauvegarder
+        function requestToken() {
+            if (!GITHUB_TOKEN) {
+                GITHUB_TOKEN = prompt('🔑 Token GitHub requis pour sauvegarder.\nCréez-en un sur : https://github.com/settings/tokens\nPermissions: repo ou public_repo') || '';
+                if (GITHUB_TOKEN) {
+                    verifyToken();
+                }
+            }
+            return GITHUB_TOKEN;
+        }
+
+        // Vérifier que le token fonctionne
+        async function verifyToken() {
+            if (!GITHUB_TOKEN) return false;
 
             try {
-                const response = await fetch(url, defaultOptions);
+                const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                    headers: {
+                        'Authorization': `Bearer ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github+json'
+                    }
+                });
 
-                // Log des headers pour debug
-                console.log('Status:', response.status);
-                console.log('Rate limit restant:', response.headers.get('X-RateLimit-Remaining'));
-
-                if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({}));
-                    throw new Error(`HTTP ${response.status}: ${errorData.message || 'Erreur inconnue'}`);
+                if (response.ok) {
+                    const json = await response.json();
+                    fileSha = json.sha;
+                    canSave = true;
+                    updateSaveButton(true);
+                    console.log('✅ Token valide, SHA récupéré:', fileSha);
+                    return true;
+                } else {
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(`Token invalide: ${error.message || 'Vérifiez les permissions'}`);
                 }
+            } catch (e) {
+                console.error('❌ Erreur token:', e);
+                alert(`❌ Token invalide: ${e.message}`);
+                GITHUB_TOKEN = '';
+                canSave = false;
+                updateSaveButton(false);
+                return false;
+            }
+        }
 
-                return await response.json();
-            } catch (error) {
-                // Si CORS bloque, essayer avec un proxy (développement uniquement)
-                if (error.message.includes('CORS') || error.message.includes('Failed to fetch')) {
-                    console.warn('Tentative avec proxy CORS...');
-                    const proxyUrl = 'https://api.allorigins.win/raw?url=';
-                    const proxiedResponse = await fetch(proxyUrl + encodeURIComponent(url), defaultOptions);
-                    if (!proxiedResponse.ok) throw error;
-                    return await proxiedResponse.json();
-                }
-                throw error;
+        function updateSaveButton(enabled) {
+            const exportBtn = document.getElementById('exportBtn');
+            if (exportBtn) {
+                exportBtn.disabled = !enabled;
+                exportBtn.textContent = enabled ? '💾 Sauvegarder' : '🔒 Token requis';
+                exportBtn.className = enabled ? 'btn btn-success' : 'btn btn-secondary';
             }
         }
 
         async function loadData() {
             try {
-                console.log('Chargement des données...');
+                console.log('📁 Chargement des données...');
 
-                // Première tentative : URL directe pour la lecture (évite CORS)
-                try {
-                    const directUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${FILE_PATH}?_=${Date.now()}`;
-                    const response = await fetch(directUrl);
-                    if (response.ok) {
-                        data = await response.json();
-                        console.log('Données chargées via URL directe');
+                // URL directe - fonctionne toujours, pas de CORS
+                const directUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${FILE_PATH}?_=${Date.now()}`;
+                const response = await fetch(directUrl);
 
-                        // Récupérer le SHA séparément pour les mises à jour
-                        const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
-                        const shaResponse = await makeGitHubRequest(apiUrl);
-                        fileSha = shaResponse.sha;
-
-                        render();
-                        return;
-                    }
-                } catch (e) {
-                    console.log('URL directe échouée, tentative API...');
+                if (!response.ok) {
+                    throw new Error(`Impossible de charger le fichier (${response.status})`);
                 }
 
-                // Deuxième tentative : API GitHub
-                const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
-                const json = await makeGitHubRequest(apiUrl);
-
-                fileSha = json.sha;
-                const decoded = atob(json.content.replace(/\n/g, ''));
-                data = JSON.parse(decoded);
-                console.log('Données chargées via API');
+                data = await response.json();
+                console.log('✅ Données chargées:', Object.keys(data).map(k => `${k}: ${data[k].length} items`).join(', '));
                 render();
+                updateSaveButton(canSave);
 
             } catch (e) {
-                console.error('Erreur chargement JSON:', e);
+                console.error('❌ Erreur:', e);
                 alert(`Impossible de charger projects.json: ${e.message}`);
             }
         }
@@ -144,76 +141,83 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!tbody) return;
 
             tbody.innerHTML = '';
+            if (!data[cat]) data[cat] = [];
+
             data[cat].forEach((p, i) => {
                 tbody.innerHTML += `<tr>
-                    <td><input class="form-control form-control-sm" value="${p.name || ''}" oninput="update('${cat}',${i},'name',this.value)"></td>
-                    <td><input class="form-control form-control-sm" value="${p.url || ''}" oninput="update('${cat}',${i},'url',this.value)"></td>
-                    <td><input class="form-control form-control-sm" value="${p.description || ''}" oninput="update('${cat}',${i},'description',this.value)"></td>
-                    <td><input class="form-control form-control-sm" value="${p.img || ''}" oninput="update('${cat}',${i},'img',this.value)"></td>
-                    <td><input class="form-control form-control-sm" value="${p.type || ''}" oninput="update('${cat}',${i},'type',this.value)"></td>
-                    <td><button class="btn btn-sm btn-danger" onclick="remove('${cat}',${i})">🗑</button></td>
+                    <td><input class="form-control form-control-sm" value="${p.name || ''}" oninput="updateItem('${cat}',${i},'name',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.url || ''}" oninput="updateItem('${cat}',${i},'url',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.description || ''}" oninput="updateItem('${cat}',${i},'description',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.img || ''}" oninput="updateItem('${cat}',${i},'img',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.type || ''}" oninput="updateItem('${cat}',${i},'type',this.value)"></td>
+                    <td><button class="btn btn-sm btn-danger" onclick="removeItem('${cat}',${i})">🗑</button></td>
                 </tr>`;
             });
         }
 
-        // Fonctions globales
-        window.update = (cat, i, field, value) => {
+        // Fonctions globales avec noms uniques
+        window.updateItem = (cat, i, field, value) => {
             if (data[cat] && data[cat][i]) {
                 data[cat][i][field] = value;
             }
         };
 
-        window.remove = (cat, i) => {
+        window.removeItem = (cat, i) => {
             if (data[cat]) {
                 data[cat].splice(i, 1);
                 render();
             }
         };
 
-        window.add = cat => {
-            if (data[cat]) {
-                data[cat].push({ name: '', url: '', description: '', img: '', type: '' });
-                render();
-            }
+        window.addItem = cat => {
+            if (!data[cat]) data[cat] = [];
+            data[cat].push({ name: '', url: '', description: '', img: '', type: '' });
+            render();
         };
 
-        async function updateGitHubFile(newData) {
-            if (!GITHUB_TOKEN) {
-                alert('❌ Token GitHub requis pour sauvegarder !');
-                return;
-            }
-
-            if (!fileSha) {
-                alert('❌ SHA manquant ! Rechargez la page.');
+        async function saveToGitHub() {
+            if (!requestToken()) return;
+            if (!canSave) {
+                alert('❌ Token non vérifié ! Vérifiez votre token.');
                 return;
             }
 
             try {
-                console.log('💾 Mise à jour du fichier...');
+                console.log('💾 Sauvegarde...');
 
-                const content = btoa(JSON.stringify(newData, null, 2));
-                const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
-
-                const result = await makeGitHubRequest(apiUrl, {
+                const content = btoa(JSON.stringify(data, null, 2));
+                const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
                     method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github+json',
+                        'Content-Type': 'application/json'
+                    },
                     body: JSON.stringify({
-                        message: `Admin Panel - ${new Date().toLocaleString('fr-FR')}`,
-                        content,
+                        message: `🔧 Admin Panel - ${new Date().toLocaleString('fr-FR')}`,
+                        content: content,
                         sha: fileSha
                     })
                 });
 
-                alert('✅ Fichier mis à jour avec succès !');
+                if (!response.ok) {
+                    const error = await response.json().catch(() => ({}));
+                    throw new Error(`HTTP ${response.status}: ${error.message || 'Erreur inconnue'}`);
+                }
+
+                const result = await response.json();
                 fileSha = result.content.sha;
-                console.log('✅ Nouveau SHA:', fileSha);
+
+                console.log('✅ Sauvegarde réussie');
+                alert('✅ Fichier sauvegardé avec succès !');
 
             } catch (error) {
-                console.error('❌ Erreur mise à jour:', error);
-
+                console.error('❌ Erreur sauvegarde:', error);
                 if (error.message.includes('401')) {
-                    alert('❌ Token invalide ! Vérifiez votre token GitHub.');
-                } else if (error.message.includes('CORS')) {
-                    alert('❌ Erreur CORS ! Utilisez GitHub directement ou un serveur backend.');
+                    alert('❌ Token invalide ! Créez un nouveau token avec les bonnes permissions.');
+                    GITHUB_TOKEN = '';
+                    canSave = false;
+                    updateSaveButton(false);
                 } else {
                     alert(`❌ Erreur: ${error.message}`);
                 }
@@ -223,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Event listeners
         const exportBtn = document.getElementById('exportBtn');
         if (exportBtn) {
-            exportBtn.onclick = () => updateGitHubFile(data);
+            exportBtn.onclick = saveToGitHub;
         }
 
         window.showSection = cat => {
