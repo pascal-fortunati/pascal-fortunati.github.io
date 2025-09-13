@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const REPO_NAME = 'pascal-fortunati.github.io';
         const FILE_PATH = 'projects.json';
 
-        let GITHUB_TOKEN = '';
+        let GITHUB_TOKEN = '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';
         let fileSha = '';
         let data = { formation: [], personnel: [] };
         let canSave = false;
