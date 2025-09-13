@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const REPO_NAME = 'pascal-fortunati.github.io';
         const FILE_PATH = 'projects.json';
 
-        let GITHUB_TOKEN = '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';
+        let GITHUB_TOKEN = '';
         let fileSha = '';
         let data = { formation: [], personnel: [] };
         let canSave = false;
@@ -143,9 +143,17 @@ document.addEventListener('DOMContentLoaded', () => {
         function updateSaveButton(enabled) {
             const exportBtn = document.getElementById('exportBtn');
             if (exportBtn) {
-                exportBtn.disabled = !enabled;
-                exportBtn.textContent = enabled ? '💾 Sauvegarder' : '🔒 Token requis';
-                exportBtn.className = enabled ? 'btn btn-success' : 'btn btn-secondary';
+                exportBtn.disabled = false; // Toujours cliquable
+
+                if (enabled) {
+                    exportBtn.textContent = '💾 Sauvegarder';
+                    exportBtn.className = 'btn btn-success';
+                } else {
+                    exportBtn.textContent = '🔒 Entrer Token';
+                    exportBtn.className = 'btn btn-warning';
+                }
+
+                console.log(`🔧 Bouton mis à jour: ${exportBtn.textContent}`);
             }
         }
 
