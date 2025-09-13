@@ -56,9 +56,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         async function loadData() {
             try {
-                const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`);
+                const res = await fetch(
+                    `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`,
+                    {
+                        headers: {
+                            'Authorization': `token ${GITHUB_TOKEN}`,
+                            'Accept': 'application/vnd.github+json'
+                        }
+                    }
+                );
+
                 const json = await res.json();
                 if (!res.ok) throw new Error(json.message);
+
                 fileSha = json.sha;
                 const decoded = atob(json.content.replace(/\n/g, ''));
                 data = JSON.parse(decoded);
