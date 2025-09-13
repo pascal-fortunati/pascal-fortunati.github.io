@@ -13,33 +13,26 @@ body {
 /* overlay login au-dessus de tout */
 #login-container {
     position: fixed;
-    /* garde le login au-dessus et fixe */
     inset: 0;
-    /* top:0; right:0; bottom:0; left:0 */
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(3, 7, 12, 0.85);
-    /* sombre + semi-transparent pour masquer l'admin */
+    background: rgba(3, 7, 12);
     z-index: 9999;
-    /* au-dessus de tout */
 }
 
 /* card plus lisible sur l'overlay */
 #login-container .card {
-    background-color: rgba(12, 18, 28, 0.98);
-    /* presque opaque */
-    border: 1px solid rgba(0, 212, 255, 0.12);
+    background-color: rgba(12, 18, 28);
+    border: 1px solid rgba(0, 212, 255);
     color: #dfefff;
 }
 
 /* admin derrière */
 #admin-container {
     position: fixed;
-    /* fixe aussi, mais bien en dessous */
     inset: 0;
     display: none;
-    /* reste caché jusqu'à login */
     z-index: 1;
     overflow: auto;
 }
@@ -48,14 +41,6 @@ body {
 body.login-active #admin-container {
     pointer-events: none;
     opacity: 0.6;
-}
-
-/* petites corrections sidebar / layout */
-.sidebar {
-    background-color: rgba(15, 25, 40, 0.95);
-    width: 280px;
-    min-width: 150px;
-    height: 100vh;
 }
 
 .sidebar {
