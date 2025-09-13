@@ -1,0 +1,63 @@
+html {
+    scroll-behavior: smooth;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(135deg, #0d1929 0%, #1a2332 50%, #0d1929 100%);
+    overflow-x: hidden;
+}
+
+.sidebar {
+    background-color: rgba(15, 25, 40, 0.75);
+    width: 280px;
+    min-width: 150px;
+    height: 100vh;
+}
+
+.table-dark {
+    --bs-table-color: #00d4ff;
+    --bs-table-bg: #0d1929;
+    --bs-table-border-color: #253370;
+    --bs-table-striped-bg: #253370;
+    --bs-table-striped-color: #00d4ff;
+    --bs-table-active-bg: #373b3e;
+    --bs-table-active-color: #00d4ff;
+    --bs-table-hover-bg: #323539;
+    --bs-table-hover-color: #00d4ff;
+    color: var(--bs-table-color);
+    border-color: var(--bs-table-border-color);
+}
+
+
+.sidebar a.nav-link {
+    color: #00d4ff;
+    text-align: center;
+}
+
+.sidebar a.nav-link.active,
+.sidebar a.nav-link:hover {
+    background-color: #00d4ff;
+    color: #0d1929;
+}
+
+h1,
+h2 {
+    color: #00eaff;
+}
+
+/* Actions */
+
+.btn-info {
+    background-color: #00d4ff;
+    border-color: #00d4ff;
+    color: #0d1929;
+    font-weight: bold;
+}
+
+.btn-info:hover {
+    background-color: #00aacc;
+    color: #fff;
+}
