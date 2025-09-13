@@ -1,27 +1,24 @@
 document.addEventListener('DOMContentLoaded', () => {
+
+    // --- Login ---
     const LOGIN_USER = 'zeigadis';
     const LOGIN_PASS = 'pasonnic83';
-
     const loginContainer = document.getElementById('login-container');
     const adminContainer = document.getElementById('admin-container');
 
     function showAdminPanel() {
         loginContainer.style.display = 'none';
         adminContainer.style.display = 'flex';
-        initAdmin(); // Charger l'admin seulement après login
+        initAdmin(); // charger l'admin uniquement après login
     }
 
-    // Vérifier session existante
-    if (localStorage.getItem('isLoggedIn') === 'true') {
-        showAdminPanel();
-    }
+    // session persistante
+    if (localStorage.getItem('isLoggedIn') === 'true') showAdminPanel();
 
-    // Formulaire login
-    document.getElementById('login-form').addEventListener('submit', (e) => {
+    document.getElementById('login-form').addEventListener('submit', e => {
         e.preventDefault();
         const user = document.getElementById('username').value;
         const pass = document.getElementById('password').value;
-
         if (user === LOGIN_USER && pass === LOGIN_PASS) {
             localStorage.setItem('isLoggedIn', 'true');
             showAdminPanel();
@@ -30,19 +27,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Déconnexion
+    // --- Déconnexion ---
     const sidebar = document.querySelector('.sidebar');
     const logoutBtn = document.createElement('button');
     logoutBtn.textContent = '🔒 Déconnexion';
     logoutBtn.className = 'btn btn-warning mt-3';
-    logoutBtn.onclick = () => {
-        localStorage.removeItem('isLoggedIn');
-        location.reload();
-    };
+    logoutBtn.onclick = () => { localStorage.removeItem('isLoggedIn'); location.reload(); };
     sidebar.appendChild(logoutBtn);
 
-    // --- Partie admin + GitHub ---
+    // --- Admin & GitHub ---
     function initAdmin() {
+
         const GITHUB_TOKEN = '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';
         const REPO_OWNER = 'pascal-fortunati';
         const REPO_NAME = 'pascal-fortunati.github.io';
@@ -91,38 +86,28 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Authorization': `token ${GITHUB_TOKEN}`,
                     'Accept': 'application/vnd.github+json'
                 },
-                body: JSON.stringify({
-                    message: 'Mise à jour depuis Admin Panel',
-                    content: content,
-                    sha: fileSha
-                })
+                body: JSON.stringify({ message: 'Mise à jour depuis Admin Panel', content, sha: fileSha })
             });
             const result = await res.json();
-            if (res.ok) {
-                alert('projects.json mis à jour sur GitHub ✅');
-                fileSha = result.content.sha;
-            } else {
-                alert('Erreur: ' + JSON.stringify(result));
-            }
+            if (res.ok) { alert('projects.json mis à jour ✅'); fileSha = result.content.sha; }
+            else { alert('Erreur: ' + JSON.stringify(result)); }
         }
 
-        document.getElementById('exportBtn').onclick = async () => {
-            await updateGitHubFile(data);
-        };
+        document.getElementById('exportBtn').onclick = async () => { await updateGitHubFile(data); };
 
-        // Switch sections
-        window.showSection = (cat) => {
+        window.showSection = cat => {
             document.getElementById('section-formation').style.display = cat === 'formation' ? 'block' : 'none';
             document.getElementById('section-personnel').style.display = cat === 'personnel' ? 'block' : 'none';
             document.getElementById('link-formation').classList.remove('active');
             document.getElementById('link-personnel').classList.remove('active');
             if (cat === 'formation') document.getElementById('link-formation').classList.add('active');
             if (cat === 'personnel') document.getElementById('link-personnel').classList.add('active');
-        }
+        };
 
-        loadData();
         window.add = add;
         window.update = update;
         window.remove = remove;
+
+        loadData();
     }
 });
