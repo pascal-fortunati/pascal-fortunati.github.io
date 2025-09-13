@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ----------- PANEL ADMIN -------------
     function initAdmin() {
-        const GITHUB_TOKEN = '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';
+        const GITHUB_TOKEN = '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'; // Remplacez par votre token
         const REPO_OWNER = 'pascal-fortunati';
         const REPO_NAME = 'pascal-fortunati.github.io';
         const FILE_PATH = 'projects.json';
@@ -178,8 +178,18 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         async function updateGitHubFile(newData) {
+            if (!GITHUB_TOKEN) {
+                alert('❌ Token GitHub requis pour sauvegarder !');
+                return;
+            }
+
+            if (!fileSha) {
+                alert('❌ SHA manquant ! Rechargez la page.');
+                return;
+            }
+
             try {
-                console.log('Mise à jour du fichier...');
+                console.log('💾 Mise à jour du fichier...');
 
                 const content = btoa(JSON.stringify(newData, null, 2));
                 const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`;
@@ -187,19 +197,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await makeGitHubRequest(apiUrl, {
                     method: 'PUT',
                     body: JSON.stringify({
-                        message: `Mise à jour depuis Admin Panel - ${new Date().toLocaleString()}`,
+                        message: `Admin Panel - ${new Date().toLocaleString('fr-FR')}`,
                         content,
                         sha: fileSha
                     })
                 });
 
-                alert('✅ projects.json mis à jour avec succès !');
+                alert('✅ Fichier mis à jour avec succès !');
                 fileSha = result.content.sha;
-                console.log('Fichier mis à jour, nouveau SHA:', fileSha);
+                console.log('✅ Nouveau SHA:', fileSha);
 
             } catch (error) {
-                console.error('Erreur mise à jour:', error);
-                alert(`❌ Erreur lors de la mise à jour: ${error.message}`);
+                console.error('❌ Erreur mise à jour:', error);
+
+                if (error.message.includes('401')) {
+                    alert('❌ Token invalide ! Vérifiez votre token GitHub.');
+                } else if (error.message.includes('CORS')) {
+                    alert('❌ Erreur CORS ! Utilisez GitHub directement ou un serveur backend.');
+                } else {
+                    alert(`❌ Erreur: ${error.message}`);
+                }
             }
         }
 
