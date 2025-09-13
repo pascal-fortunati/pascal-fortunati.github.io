@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ----------- PANEL ADMIN -------------
     function initAdmin() {
-        const GITHUB_TOKEN = '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';
+        const GITHUB_TOKEN = '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';
         const REPO_OWNER = 'pascal-fortunati';
         const REPO_NAME = 'pascal-fortunati.github.io';
         const FILE_PATH = 'projects.json';
