@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let data = { formation: [], personnel: [] };
         let canSave = false;
 
-        // Demander le token seulement si l'utilisateur veut sauvegarder
+        // Demander le token
         function requestToken() {
             if (!GITHUB_TOKEN) {
                 GITHUB_TOKEN = prompt('🔑 Token GitHub requis pour sauvegarder.\nCréez-en un sur : https://github.com/settings/tokens\nPermissions: repo ou public_repo') || '';
@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
         function updateSaveButton(enabled) {
             const exportBtn = document.getElementById('exportBtn');
             if (exportBtn) {
-                exportBtn.disabled = false; // Toujours cliquable
+                exportBtn.disabled = false;
 
                 if (enabled) {
                     exportBtn.textContent = '💾 Sauvegarder';
