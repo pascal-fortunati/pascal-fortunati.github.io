@@ -155,35 +155,45 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
-        // Fonctions globales avec noms uniques
-        window.updateItem = (cat, i, field, value) => {
+        // ✅ FONCTIONS GLOBALES AVEC LES BONS NOMS (compatibles HTML)
+        window.update = (cat, i, field, value) => {
+            console.log(`Update: ${cat}[${i}].${field} = "${value}"`);
             if (data[cat] && data[cat][i]) {
                 data[cat][i][field] = value;
             }
         };
 
-        window.removeItem = (cat, i) => {
+        window.remove = (cat, i) => {
+            console.log(`Remove: ${cat}[${i}]`);
             if (data[cat]) {
                 data[cat].splice(i, 1);
                 render();
             }
         };
 
-        window.addItem = cat => {
+        window.add = cat => {
+            console.log(`Add to: ${cat}`);
             if (!data[cat]) data[cat] = [];
             data[cat].push({ name: '', url: '', description: '', img: '', type: '' });
             render();
         };
 
         async function saveToGitHub() {
-            if (!requestToken()) return;
+            console.log('🔧 Tentative de sauvegarde...');
+
+            if (!requestToken()) {
+                console.log('❌ Aucun token fourni');
+                return;
+            }
+
             if (!canSave) {
+                console.log('❌ Token non vérifié');
                 alert('❌ Token non vérifié ! Vérifiez votre token.');
                 return;
             }
 
             try {
-                console.log('💾 Sauvegarde...');
+                console.log('💾 Sauvegarde en cours...');
 
                 const content = btoa(JSON.stringify(data, null, 2));
                 const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
@@ -208,16 +218,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
                 fileSha = result.content.sha;
 
-                console.log('✅ Sauvegarde réussie');
+                console.log('✅ Sauvegarde réussie, nouveau SHA:', fileSha);
                 alert('✅ Fichier sauvegardé avec succès !');
 
             } catch (error) {
                 console.error('❌ Erreur sauvegarde:', error);
+
                 if (error.message.includes('401')) {
                     alert('❌ Token invalide ! Créez un nouveau token avec les bonnes permissions.');
                     GITHUB_TOKEN = '';
                     canSave = false;
                     updateSaveButton(false);
+                } else if (error.message.includes('CORS')) {
+                    alert('❌ Erreur CORS ! Le token ne peut pas être utilisé depuis le navigateur.');
                 } else {
                     alert(`❌ Erreur: ${error.message}`);
                 }
@@ -227,10 +240,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Event listeners
         const exportBtn = document.getElementById('exportBtn');
         if (exportBtn) {
-            exportBtn.onclick = saveToGitHub;
+            exportBtn.onclick = () => {
+                console.log('🖱️ Clic sur le bouton sauvegarde');
+                saveToGitHub();
+            };
         }
 
         window.showSection = cat => {
+            console.log(`📂 Affichage section: ${cat}`);
             const formationSection = document.getElementById('section-formation');
             const personnelSection = document.getElementById('section-personnel');
             const formationLink = document.getElementById('link-formation');
@@ -241,6 +258,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (formationLink) formationLink.classList.toggle('active', cat === 'formation');
             if (personnelLink) personnelLink.classList.toggle('active', cat === 'personnel');
         };
+
+        // ✅ Test des fonctions au chargement
+        console.log('🔧 Test des fonctions globales...');
+        console.log('window.add:', typeof window.add);
+        console.log('window.update:', typeof window.update);
+        console.log('window.remove:', typeof window.remove);
+        console.log('window.showSection:', typeof window.showSection);
 
         // Initialisation
         loadData();
