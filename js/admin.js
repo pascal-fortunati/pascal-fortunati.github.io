@@ -71,6 +71,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!GITHUB_TOKEN) return false;
 
             try {
+                console.log('🔍 Vérification du token...');
+
+                // Tentative avec l'API GitHub
                 const response = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
                     headers: {
                         'Authorization': `Bearer ${GITHUB_TOKEN}`,
@@ -84,6 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     canSave = true;
                     updateSaveButton(true);
                     console.log('✅ Token valide, SHA récupéré:', fileSha);
+                    alert('✅ Token validé avec succès !');
                     return true;
                 } else {
                     const error = await response.json().catch(() => ({}));
@@ -91,11 +95,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (e) {
                 console.error('❌ Erreur token:', e);
-                alert(`❌ Token invalide: ${e.message}`);
-                GITHUB_TOKEN = '';
-                canSave = false;
-                updateSaveButton(false);
-                return false;
+
+                // Si c'est une erreur CORS ou réseau
+                if (e.message.includes('CORS') || e.message.includes('Failed to fetch')) {
+                    console.warn('⚠️ Erreur CORS détectée, tentative alternative...');
+
+                    // Méthode alternative : on suppose que le token est bon si l'utilisateur l'a fourni
+                    const userConfirm = confirm(
+                        '⚠️ Impossible de vérifier le token à cause des restrictions CORS.\n\n' +
+                        'Voulez-vous continuer quand même ?\n' +
+                        '(Le token sera testé lors de la sauvegarde)'
+                    );
+
+                    if (userConfirm) {
+                        // On récupère le SHA depuis les données déjà chargées
+                        try {
+                            const directResponse = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
+                                headers: { 'Accept': 'application/vnd.github+json' }
+                            });
+                            if (directResponse.ok) {
+                                const json = await directResponse.json();
+                                fileSha = json.sha;
+                            }
+                        } catch { }
+
+                        canSave = true;
+                        updateSaveButton(true);
+                        console.log('⚠️ Token accepté sans vérification');
+                        alert('⚠️ Token accepté (non vérifié à cause de CORS)');
+                        return true;
+                    } else {
+                        GITHUB_TOKEN = '';
+                        canSave = false;
+                        updateSaveButton(false);
+                        return false;
+                    }
+                } else {
+                    alert(`❌ Token invalide: ${e.message}`);
+                    GITHUB_TOKEN = '';
+                    canSave = false;
+                    updateSaveButton(false);
+                    return false;
+                }
             }
         }
 
