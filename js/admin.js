@@ -1,17 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+    document.body.classList.add('login-active');
+
     // --- Login ---
     const LOGIN_USER = 'zeigadis';
     const LOGIN_PASS = 'pasonnic83';
-    const loginContainer = document.getElementById('login-container');
-    const adminContainer = document.getElementById('admin-container');
 
     function showAdminPanel() {
-        loginContainer.style.display = 'none';
-        adminContainer.style.display = 'flex';
-        initAdmin(); // charger l'admin uniquement après login
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('admin-container').style.display = 'flex';
+        document.body.classList.remove('login-active'); // retire la classe overlay
+        initAdmin(); // si tu charges l'admin à ce moment
     }
-
     // session persistante
     if (localStorage.getItem('isLoggedIn') === 'true') showAdminPanel();
 
