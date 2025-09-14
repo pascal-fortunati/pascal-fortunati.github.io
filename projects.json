@@ -1,69 +1,76 @@
 {
-    "formation": [
-        {
-            "name": "Runtrack 1 - Jour 2",
-            "url": "https://github.com/pascal-fortunati/runtrack1-jour-2",
-            "description": "Exercices et code du jour 2 de la Runtrack 1",
-            "img": "img/projet2.jpg",
-            "type": "Voir sur Github"
-        },
-        {
-            "name": "Runtrack 1 - Jour 3",
-            "url": "https://github.com/pascal-fortunati/runtrack1-jour-3",
-            "description": "Exercices et code du jour 3 de la Runtrack 1",
-            "img": "img/projet3.jpg",
-            "type": "Voir sur Github"
-        },
-        {
-            "name": "Runtrack 1 - Jour 4",
-            "url": "https://pascal-fortunati.github.io/runtrack1-jour-4",
-            "description": "Exercices et code du jour 4 de la Runtrack 1",
-            "img": "img/projet4.jpg",
-            "type": "Voir DÃ©mo"
-        },
-        {
-            "name": "jour-git - Jour 5",
-            "url": "https://pascal-fortunati.github.io/jour-git",
-            "description": "Exercices et code du jour 5 jour-git",
-            "img": "img/projet5.jpg",
-            "type": "Voir DÃ©mo"
-        },
-        {
-            "name": "fansite",
-            "url": "https://github.com/pascal-fortunati/fansite",
-            "description": "projet fansite sur one piece",
-            "img": "img/projet6.jpg",
-            "type": "Voir sur Github"
-        },
-        {
-            "name": "vitrine apps",
-            "url": "https://pascal-fortunati.github.io/vitirine",
-            "description": "projet application mobile favoris",
-            "img": "img/projet7.jpg",
-            "type": "Voir DÃ©mo"
-        },
-        {
-            "name": "Projet voyage",
-            "url": "https://pascal-fortunati.github.io/projet-voyages",
-            "description": "projet vitrine agence de voyage",
-            "img": "img/projet8.jpg",
-            "type": "Voir DÃ©mo"
-        }
-    ],
-    "personnel": [
-        {
-            "name": "fansite",
-            "url": "https://github.com/pascal-fortunati/fansite",
-            "description": "projet fansite sur one piece",
-            "img": "img/projet6.jpg",
-            "type": "Voir sur Github"
-        },
-        {
-            "name": "vitrine apps",
-            "url": "https://pascal-fortunati.github.io/vitirine",
-            "description": "projet application mobile favoris",
-            "img": "img/projet7.jpg",
-            "type": "Voir DÃ©mo"
-        }
-    ]
+  "formation": [
+    {
+      "name": "Runtrack 1 - Jour 2",
+      "url": "https://github.com/pascal-fortunati/runtrack1-jour-2",
+      "description": "Exercices et code du jour 2 de la Runtrack 1",
+      "img": "img/projet2.jpg",
+      "type": "Voir sur Github"
+    },
+    {
+      "name": "Runtrack 1 - Jour 3",
+      "url": "https://github.com/pascal-fortunati/runtrack1-jour-3",
+      "description": "Exercices et code du jour 3 de la Runtrack 1",
+      "img": "img/projet3.jpg",
+      "type": "Voir sur Github"
+    },
+    {
+      "name": "Runtrack 1 - Jour 4",
+      "url": "https://pascal-fortunati.github.io/runtrack1-jour-4",
+      "description": "Exercices et code du jour 4 de la Runtrack 1",
+      "img": "img/projet4.jpg",
+      "type": "Voir Démo"
+    },
+    {
+      "name": "jour-git - Jour 5",
+      "url": "https://pascal-fortunati.github.io/jour-git",
+      "description": "Exercices et code du jour 5 jour-git",
+      "img": "img/projet5.jpg",
+      "type": "Voir Démo"
+    },
+    {
+      "name": "fansite",
+      "url": "https://github.com/pascal-fortunati/fansite",
+      "description": "projet fansite sur one piece",
+      "img": "img/projet6.jpg",
+      "type": "Voir sur Github"
+    },
+    {
+      "name": "vitrine apps",
+      "url": "https://pascal-fortunati.github.io/vitirine",
+      "description": "projet application mobile favoris",
+      "img": "img/projet7.jpg",
+      "type": "Voir Démo"
+    },
+    {
+      "name": "Projet voyage",
+      "url": "https://pascal-fortunati.github.io/projet-voyages",
+      "description": "projet vitrine agence de voyage",
+      "img": "img/projet8.jpg",
+      "type": "Voir Démo"
+    },
+    {
+      "name": "test",
+      "url": "test",
+      "description": "test",
+      "img": "test",
+      "type": "test"
+    }
+  ],
+  "personnel": [
+    {
+      "name": "fansite",
+      "url": "https://github.com/pascal-fortunati/fansite",
+      "description": "projet fansite sur one piece",
+      "img": "img/projet6.jpg",
+      "type": "Voir sur Github"
+    },
+    {
+      "name": "vitrine apps",
+      "url": "https://pascal-fortunati.github.io/vitirine",
+      "description": "projet application mobile favoris",
+      "img": "img/projet7.jpg",
+      "type": "Voir Démo"
+    }
+  ]
 }
