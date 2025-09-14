@@ -77,15 +77,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!tbody) return;
 
             tbody.innerHTML = (data[cat] || []).map((p, i) => `
-                <tr>
-                    <td><input class="form-control form-control-sm" value="${p.name || ''}" oninput="update('${cat}',${i},'name',this.value)"></td>
-                    <td><input class="form-control form-control-sm" value="${p.url || ''}" oninput="update('${cat}',${i},'url',this.value)"></td>
-                    <td><input class="form-control form-control-sm" value="${p.description || ''}" oninput="update('${cat}',${i},'description',this.value)"></td>
-                    <td><input class="form-control form-control-sm" value="${p.img || ''}" oninput="update('${cat}',${i},'img',this.value)"><input type="file" class="form-control form-control-sm mt-1" onchange="uploadImageToGitHub(this.files[0], '${cat}', ${i})"></td>
-                    <td><input class="form-control form-control-sm" value="${p.type || ''}" oninput="update('${cat}',${i},'type',this.value)"></td>
-                    <td><button class="btn btn-sm btn-danger" onclick="removeItem('${cat}',${i})">🗑</button></td>
-                </tr>
-            `).join('');
+            <tr>
+                <td><input class="form-control form-control-sm" value="${p.name || ''}" oninput="update('${cat}',${i},'name',this.value)"></td>
+                <td><input class="form-control form-control-sm" value="${p.url || ''}" oninput="update('${cat}',${i},'url',this.value)"></td>
+                <td><input class="form-control form-control-sm" value="${p.description || ''}" oninput="update('${cat}',${i},'description',this.value)"></td>
+                <td><input class="form-control form-control-sm" value="${p.img || ''}" oninput="update('${cat}',${i},'img',this.value)"></td>
+                <td><input class="form-control form-control-sm" value="${p.type || ''}" oninput="update('${cat}',${i},'type',this.value)"></td>
+                <td class="d-flex gap-1">
+                    <button class="btn btn-sm btn-secondary" onclick="triggerUpload(${i}, '${cat}')">🖼 Ajouter image</button>
+                    <button class="btn btn-sm btn-danger" onclick="removeItem('${cat}',${i})">🗑 Supprimer</button>
+                </td>
+            </tr>
+        `).join('');
         });
     }
 
@@ -103,6 +106,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         exportBtn.addEventListener('click', saveToGitHub);
         loadData();
+    }
+
+    function triggerUpload(index, cat) {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = () => uploadImageToGitHub(input.files[0], cat, index);
+        input.click();
     }
 
     // --- GitHub ---
@@ -163,15 +174,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            // Lire le fichier en Base64
             const reader = new FileReader();
             reader.onload = async () => {
-                const base64Data = reader.result.split(',')[1]; // enlever "data:image/png;base64,"
+                const base64Data = reader.result.split(',')[1];
 
-                // Nom du fichier dans ton dépôt (ici dans un dossier `images/`)
-                const fileName = `images/${Date.now()}_${file.name}`;
+                // Nouveau nom basé sur l'index du projet
+                const ext = file.name.split('.').pop();
+                const fileName = `img/projet${index + 1}.${ext}`;
 
-                // Upload vers GitHub
                 const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${fileName}`, {
                     method: 'PUT',
                     headers: {
@@ -187,10 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!res.ok) throw new Error((await res.json()).message || res.statusText);
                 const result = await res.json();
 
-                // URL brute de l’image sur GitHub Pages
                 const imageUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${fileName}`;
-
-                // Mettre à jour ton tableau JSON
                 data[cat][index].img = imageUrl;
                 render();
 
@@ -201,8 +208,6 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Erreur upload image : ' + err.message);
         }
     }
-
-
 
     // --- Démarrage ---
     initLogin();
