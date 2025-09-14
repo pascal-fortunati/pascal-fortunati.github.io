@@ -97,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- GitHub ---
     async function loadData() {
         try {
-            const res = await fetch(`https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${FILE_PATH}?_=${Date.now()}`);
+            const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`);
             if (!res.ok) throw new Error(res.statusText);
 
             const json = await res.json();
