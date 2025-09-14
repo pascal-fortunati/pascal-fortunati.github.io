@@ -97,11 +97,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- GitHub ---
     async function loadData() {
         try {
-            const url = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${FILE_PATH}?_=${Date.now()}`;
-            const res = await fetch(url);
+            const res = await fetch(`https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${FILE_PATH}?_=${Date.now()}`);
             if (!res.ok) throw new Error(res.statusText);
 
-            data = await res.json();
+            const json = await res.json();
+            fileSha = json.sha; // ← récupérer le sha du fichier
+            data = JSON.parse(atob(json.content));
+
             render();
             exportBtn.disabled = false;
         } catch (err) {
