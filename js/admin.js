@@ -7,7 +7,6 @@ function utf8ToBase64(str) {
     return btoa(unescape(encodeURIComponent(str)));
 }
 
-
 document.addEventListener('DOMContentLoaded', () => {
     // --- Constantes ---
     const LOGIN_USER = 'zeigadis';
@@ -50,6 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         document.body.classList.add('login-active');
+
         loginForm.addEventListener('submit', e => {
             e.preventDefault();
             const user = username.value.trim();
@@ -77,26 +77,26 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!tbody) return;
 
             tbody.innerHTML = (data[cat] || []).map((p, i) => `
-            <tr>
-                <td><input class="form-control form-control-sm" value="${p.name || ''}" oninput="update('${cat}',${i},'name',this.value)"></td>
-                <td><input class="form-control form-control-sm" value="${p.url || ''}" oninput="update('${cat}',${i},'url',this.value)"></td>
-                <td><input class="form-control form-control-sm" value="${p.description || ''}" oninput="update('${cat}',${i},'description',this.value)"></td>
-                <td><input class="form-control form-control-sm" value="${p.img || ''}" oninput="update('${cat}',${i},'img',this.value)"></td>
-                <td><input class="form-control form-control-sm" value="${p.type || ''}" oninput="update('${cat}',${i},'type',this.value)"></td>
-                <td class="d-flex gap-1">
-                    <button class="btn btn-sm btn-secondary" onclick="triggerUpload(${i}, '${cat}')">🖼 Ajouter image</button>
-                    <button class="btn btn-sm btn-danger" onclick="removeItem('${cat}',${i})">🗑 Supprimer</button>
-                </td>
-            </tr>
-        `).join('');
+                <tr>
+                    <td><input class="form-control form-control-sm" value="${p.name || ''}" oninput="update('${cat}',${i},'name',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.url || ''}" oninput="update('${cat}',${i},'url',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.description || ''}" oninput="update('${cat}',${i},'description',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.img || ''}" oninput="update('${cat}',${i},'img',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.type || ''}" oninput="update('${cat}',${i},'type',this.value)"></td>
+                    <td class="d-flex gap-1">
+                        <button class="btn btn-sm btn-secondary" onclick="triggerUpload(${i}, '${cat}')">🖼</button>
+                        <button class="btn btn-sm btn-danger" onclick="removeItem('${cat}',${i})">🗑</button>
+                    </td>
+                </tr>
+            `).join('');
         });
     }
 
     function initAdmin() {
+        // --- Fonctions globales ---
         window.update = (cat, i, field, val) => data[cat][i][field] = val;
         window.removeItem = (cat, i) => { data[cat].splice(i, 1); render(); };
         window.add = cat => { data[cat].push({ name: '', url: '', description: '', img: '', type: '' }); render(); };
-
         window.showSection = cat => {
             ['formation', 'personnel'].forEach(c => {
                 document.getElementById(`section-${c}`).style.display = c === cat ? 'block' : 'none';
@@ -104,16 +104,56 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         };
 
+        window.triggerUpload = function (index, cat) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = () => window.uploadImageToGitHub(input.files[0], cat, index);
+            input.click();
+        }
+
+        window.uploadImageToGitHub = async function (file, cat, index) {
+            if (!file) return;
+            if (!GITHUB_TOKEN) {
+                GITHUB_TOKEN = prompt('🔑 Token GitHub requis :')?.trim() || '';
+                if (!GITHUB_TOKEN) return;
+                localStorage.setItem('githubToken', GITHUB_TOKEN);
+            }
+
+            try {
+                const reader = new FileReader();
+                reader.onload = async () => {
+                    const base64Data = reader.result.split(',')[1];
+                    const ext = file.name.split('.').pop();
+                    const fileName = `img/projet${index + 1}.${ext}`;
+
+                    const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${fileName}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${GITHUB_TOKEN}`,
+                            'Accept': 'application/vnd.github+json'
+                        },
+                        body: JSON.stringify({
+                            message: `🖼 Ajout image ${file.name}`,
+                            content: base64Data
+                        })
+                    });
+
+                    if (!res.ok) throw new Error((await res.json()).message || res.statusText);
+                    const imageUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${fileName}`;
+                    data[cat][index].img = imageUrl;
+                    render();
+                    alert('✅ Image uploadée avec succès');
+                };
+                reader.readAsDataURL(file);
+            } catch (err) {
+                alert('Erreur upload image : ' + err.message);
+            }
+        }
+
+        // --- Bouton GitHub ---
         exportBtn.addEventListener('click', saveToGitHub);
         loadData();
-    }
-
-    function triggerUpload(index, cat) {
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = 'image/*';
-        input.onchange = () => uploadImageToGitHub(input.files[0], cat, index);
-        input.click();
     }
 
     // --- GitHub ---
@@ -121,11 +161,9 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`);
             if (!res.ok) throw new Error(res.statusText);
-
             const json = await res.json();
             fileSha = json.sha;
             data = JSON.parse(base64ToUtf8(json.content));
-
             render();
             exportBtn.disabled = false;
         } catch (err) {
@@ -142,7 +180,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const content = utf8ToBase64(JSON.stringify(data, null, 2));
-
             const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
                 method: 'PUT',
                 headers: {
@@ -162,50 +199,6 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('✅ Sauvegardé avec succès');
         } catch (err) {
             alert('Erreur sauvegarde : ' + err.message);
-        }
-    }
-
-    async function uploadImageToGitHub(file, cat, index) {
-        if (!file) return;
-        if (!GITHUB_TOKEN) {
-            GITHUB_TOKEN = prompt('🔑 Token GitHub requis :')?.trim() || '';
-            if (!GITHUB_TOKEN) return;
-            localStorage.setItem('githubToken', GITHUB_TOKEN);
-        }
-
-        try {
-            const reader = new FileReader();
-            reader.onload = async () => {
-                const base64Data = reader.result.split(',')[1];
-
-                // Nouveau nom basé sur l'index du projet
-                const ext = file.name.split('.').pop();
-                const fileName = `img/projet${index + 1}.${ext}`;
-
-                const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${fileName}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${GITHUB_TOKEN}`,
-                        'Accept': 'application/vnd.github+json'
-                    },
-                    body: JSON.stringify({
-                        message: `🖼 Ajout image ${file.name}`,
-                        content: base64Data
-                    })
-                });
-
-                if (!res.ok) throw new Error((await res.json()).message || res.statusText);
-                const result = await res.json();
-
-                const imageUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${fileName}`;
-                data[cat][index].img = imageUrl;
-                render();
-
-                alert('✅ Image uploadée avec succès');
-            };
-            reader.readAsDataURL(file);
-        } catch (err) {
-            alert('Erreur upload image : ' + err.message);
         }
     }
 
