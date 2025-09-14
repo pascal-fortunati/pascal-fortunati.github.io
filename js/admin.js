@@ -62,12 +62,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 loginError.style.display = 'block';
             }
         });
-
-        const logoutBtn = document.createElement('button');
-        logoutBtn.textContent = '🔒 Déconnexion';
-        logoutBtn.className = 'btn btn-warning mt-3';
-        logoutBtn.addEventListener('click', logout);
-        sidebar.appendChild(logoutBtn);
     }
 
     // --- Interface admin ---
@@ -110,6 +104,16 @@ document.addEventListener('DOMContentLoaded', () => {
             input.accept = 'image/*';
             input.onchange = () => window.uploadImageToGitHub(input.files[0], cat, index);
             input.click();
+        }
+
+        // --- Bouton déconnexion ---
+        if (!document.getElementById('logoutBtn')) {
+            const logoutBtn = document.createElement('button');
+            logoutBtn.id = 'logoutBtn';
+            logoutBtn.textContent = '🔒 Déconnexion';
+            logoutBtn.className = 'btn btn-warning mt-3';
+            logoutBtn.addEventListener('click', logout);
+            sidebar.appendChild(logoutBtn);
         }
 
         window.uploadImageToGitHub = async function (file, cat, index) {
