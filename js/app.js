@@ -4,37 +4,43 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderSection(projects, sectionId, title) {
         const container = document.getElementById(sectionId);
         if (!container) return;
-        container.innerHTML = `<h2 class="text-center mb-4">${title}</h2>`;
+
+        let html = `<h2 class="text-center mb-4">${title}</h2><div class="row g-3">`;
         projects.forEach(proj => {
-            container.innerHTML += `
-          <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <div class="card shadow-sm h-100">
-              <img src="${proj.img}" class="card-img-top" alt="${proj.name}">
-              <div class="card-body d-flex flex-column">
-                <h5 class="card-title">${proj.name}</h5>
-                <p class="card-text">${proj.description}</p>
-                <a href="${proj.url}" target="_blank" class="btn btn-primary mt-auto">${proj.type}</a>
-              </div>
-            </div>
-          </div>`;
+            html += `
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="card shadow-sm h-100">
+                    <img src="${proj.img}" class="card-img-top" alt="${proj.name}">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">${proj.name}</h5>
+                        <p class="card-text">${proj.description}</p>
+                        <a href="${proj.url}" target="_blank" class="btn btn-primary mt-auto">${proj.type}</a>
+                    </div>
+                </div>
+            </div>`;
         });
+        html += `</div>`;
+        container.innerHTML = html;
     }
 
     // ===== Fetch JSON =====
     fetch('projects.json')
-        .then(res => res.json())
-        .then(data => {
-            renderSection(data.formation, "formation-projects", "Projets de formation");
-            renderSection(data.personnel, "personnel-projects", "Projets personnels");
+        .then(res => {
+            if (!res.ok) throw new Error('Impossible de charger projects.json');
+            return res.json();
         })
-        .catch(err => console.error("Impossible de charger projects.json :", err));
+        .then(data => {
+            renderSection(data.formation, "formation-projects", "Projets Formation");
+            renderSection(data.personnel, "personnel-projects", "Projets Personnels");
+        })
+        .catch(err => console.error(err));
 
     // ===== Pluie GitHub =====
     const canvas = document.getElementById('github-rain');
     if (canvas) {
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        let canvasWidth = canvas.width = window.innerWidth;
+        let canvasHeight = canvas.height = window.innerHeight;
 
         const logo = new Image();
         logo.src = 'img/github.png';
@@ -42,23 +48,20 @@ document.addEventListener('DOMContentLoaded', () => {
         const coloredLogo = document.createElement('canvas');
         const ctxColored = coloredLogo.getContext('2d');
 
-        const drops = [];
         const dropCount = 10;
-        for (let i = 0; i < dropCount; i++) {
-            drops.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * canvas.height,
-                speed: 1 + Math.random() * 2,
-                size: 40 + Math.random() * 40
-            });
-        }
+        const drops = Array.from({ length: dropCount }, () => ({
+            x: Math.random() * canvasWidth,
+            y: Math.random() * canvasHeight,
+            speed: 1 + Math.random() * 2,
+            size: 40 + Math.random() * 40
+        }));
 
         function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
             drops.forEach(d => {
                 ctx.drawImage(coloredLogo, d.x, d.y, d.size, d.size);
                 d.y += d.speed;
-                if (d.y > canvas.height) d.y = -d.size;
+                if (d.y > canvasHeight) d.y = -d.size;
             });
             requestAnimationFrame(animate);
         }
@@ -74,8 +77,8 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            canvasWidth = canvas.width = window.innerWidth;
+            canvasHeight = canvas.height = window.innerHeight;
         });
     }
 

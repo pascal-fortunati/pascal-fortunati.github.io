@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.uploadImageToGitHub = async function (file, cat, index) {
             if (!file) return;
             if (!GITHUB_TOKEN) {
-                GITHUB_TOKEN = prompt('🔑 Token GitHub requis :')?.trim() || '';
+                GITHUB_TOKEN = prompt('🔑 Token GitHub:')?.trim() || '';
                 if (!GITHUB_TOKEN) return;
                 localStorage.setItem('githubToken', GITHUB_TOKEN);
             }
