@@ -107,6 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // --- Bouton déconnexion ---
+        window.logout = logout;
         if (!document.getElementById('logoutBtn')) {
             const logoutBtn = document.createElement('button');
             logoutBtn.id = 'logoutBtn';
