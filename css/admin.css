@@ -7,51 +7,47 @@ body {
     margin: 0;
     padding: 0;
     background: linear-gradient(135deg, #0d1929 0%, #1a2332 50%, #0d1929 100%);
-    overflow-x: hidden;
 }
 
-/* Login container - overlay par défaut */
+/* Login container */
 #login-container {
     position: fixed;
     inset: 0;
     display: flex !important;
-    /* Force l'affichage initial */
     align-items: center;
     justify-content: center;
-    background: rgba(3, 7, 12, 0.95);
+    background: url('../img/login.jpg') no-repeat center center;
+    background-size: cover;
     z-index: 9999;
-    transition: opacity 0.3s ease;
 }
 
-/* Masquer le login quand connecté */
+/* Masquer quand connecté */
 #login-container[style*="display: none"] {
     display: none !important;
 }
 
-/* Card login */
+/* Login */
 #login-container .card {
     background-color: rgba(12, 18, 28, 0.9);
-    border: 1px solid rgba(0, 212, 255, 0.5);
     color: #dfefff;
     backdrop-filter: blur(10px);
 }
 
-/* Admin container - masqué par défaut */
+/* Admin container */
 #admin-container {
     position: fixed;
     inset: 0;
     display: none !important;
-    /* Force masquage initial */
     z-index: 1;
     overflow: auto;
 }
 
-/* Afficher l'admin quand activé */
+/* Afficher quand connecté */
 #admin-container[style*="display: flex"] {
     display: flex !important;
 }
 
-/* Désactiver l'admin quand login visible */
+/* Désactiver quand déconnecté */
 body.login-active #admin-container {
     pointer-events: none;
     opacity: 0.3;
@@ -64,10 +60,11 @@ body:not(.login-active) #login-container {
 
 body:not(.login-active) #admin-container {
     display: flex !important;
+    background: linear-gradient(135deg, #0d1929 0%, #1a2332 50%, #0d1929 100%);
 }
 
 .sidebar {
-    background-color: rgba(15, 25, 40, 0.9);
+    background-color: rgba(15, 25, 40, 0.9) !important;
     width: 280px;
     min-width: 280px;
     height: 100vh;
