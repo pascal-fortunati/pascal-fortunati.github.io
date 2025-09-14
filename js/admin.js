@@ -86,8 +86,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- Fonctions globales ---
     function initAdmin() {
-        // --- Fonctions globales ---
         window.update = (cat, i, field, val) => data[cat][i][field] = val;
         window.removeItem = (cat, i) => { data[cat].splice(i, 1); render(); };
         window.add = cat => { data[cat].push({ name: '', url: '', description: '', img: '', type: '' }); render(); };
