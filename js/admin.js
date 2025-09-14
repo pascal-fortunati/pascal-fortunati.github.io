@@ -78,8 +78,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td><input class="form-control form-control-sm" value="${p.img || ''}" oninput="update('${cat}',${i},'img',this.value)"></td>
                     <td><input class="form-control form-control-sm" value="${p.type || ''}" oninput="update('${cat}',${i},'type',this.value)"></td>
                     <td class="d-flex gap-1">
-                        <button class="btn btn-sm btn-secondary" onclick="triggerUpload(${i}, '${cat}')">🖼</button>
-                        <button class="btn btn-sm btn-danger" onclick="removeItem('${cat}',${i})">🗑</button>
+                        <button class="btn btn-sm btn-success" onclick="triggerUpload(${i}, '${cat}')">🖼 Ajouter image</button>
+                        <button class="btn btn-sm btn-danger" onclick="removeItem('${cat}',${i})">🗑 Supprimer</button>
                     </td>
                 </tr>
             `).join('');
