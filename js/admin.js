@@ -10,7 +10,7 @@ function utf8ToBase64(str) {
 document.addEventListener('DOMContentLoaded', () => {
     // --- Constantes ---
     const LOGIN_USER = 'zeigadis';
-    const LOGIN_PASS = 'pasonnic83';
+    const LOGIN_PASS = 'admin123';
     const REPO_OWNER = 'pascal-fortunati';
     const REPO_NAME = 'pascal-fortunati.github.io';
     const FILE_PATH = 'projects.json';
