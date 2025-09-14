@@ -19,14 +19,14 @@
       "url": "https://pascal-fortunati.github.io/runtrack1-jour-4",
       "description": "Exercices et code du jour 4 de la Runtrack 1",
       "img": "img/projet4.jpg",
-      "type": "Voir Démo"
+      "type": "Voir DÃ©mo"
     },
     {
       "name": "jour-git - Jour 5",
       "url": "https://pascal-fortunati.github.io/jour-git",
       "description": "Exercices et code du jour 5 jour-git",
       "img": "img/projet5.jpg",
-      "type": "Voir Démo"
+      "type": "Voir DÃ©mo"
     },
     {
       "name": "fansite",
@@ -40,21 +40,14 @@
       "url": "https://pascal-fortunati.github.io/vitirine",
       "description": "projet application mobile favoris",
       "img": "img/projet7.jpg",
-      "type": "Voir Démo"
+      "type": "Voir DÃ©mo"
     },
     {
       "name": "Projet voyage",
       "url": "https://pascal-fortunati.github.io/projet-voyages",
       "description": "projet vitrine agence de voyage",
       "img": "img/projet8.jpg",
-      "type": "Voir Démo"
-    },
-    {
-      "name": "test",
-      "url": "test",
-      "description": "test",
-      "img": "test",
-      "type": "test"
+      "type": "Voir DÃ©mo"
     }
   ],
   "personnel": [
@@ -70,7 +63,7 @@
       "url": "https://pascal-fortunati.github.io/vitirine",
       "description": "projet application mobile favoris",
       "img": "img/projet7.jpg",
-      "type": "Voir Démo"
+      "type": "Voir DÃƒÂ©mo"
     }
   ]
 }
