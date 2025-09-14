@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebar = document.querySelector('.sidebar');
 
     // --- État ---
-    let GITHUB_TOKEN = '';
+    let GITHUB_TOKEN = localStorage.getItem('githubToken') || '';
     let fileSha = '';
     let data = { formation: [], personnel: [] };
 
@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function logout() {
         localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('githubToken'); // ← on oublie aussi le token
         location.reload();
     }
 
@@ -115,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!GITHUB_TOKEN) {
             GITHUB_TOKEN = prompt('🔑 Token GitHub requis :')?.trim() || '';
             if (!GITHUB_TOKEN) return;
+            localStorage.setItem('githubToken', GITHUB_TOKEN); // ← mémoriser le token
         }
 
         try {
