@@ -1,3 +1,13 @@
+// --- Helper ---
+function base64ToUtf8(str) {
+    return decodeURIComponent(escape(atob(str)));
+}
+
+function utf8ToBase64(str) {
+    return btoa(unescape(encodeURIComponent(str)));
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- Constantes ---
     const LOGIN_USER = 'zeigadis';
@@ -29,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function logout() {
         localStorage.removeItem('isLoggedIn');
-        localStorage.removeItem('githubToken'); // ← on oublie aussi le token
+        localStorage.removeItem('githubToken');
         location.reload();
     }
 
@@ -102,8 +112,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!res.ok) throw new Error(res.statusText);
 
             const json = await res.json();
-            fileSha = json.sha; // ← récupérer le sha du fichier
-            data = JSON.parse(atob(json.content));
+            fileSha = json.sha;
+            data = JSON.parse(base64ToUtf8(json.content));
 
             render();
             exportBtn.disabled = false;
@@ -116,11 +126,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!GITHUB_TOKEN) {
             GITHUB_TOKEN = prompt('🔑 Token GitHub requis :')?.trim() || '';
             if (!GITHUB_TOKEN) return;
-            localStorage.setItem('githubToken', GITHUB_TOKEN); // ← mémoriser le token
+            localStorage.setItem('githubToken', GITHUB_TOKEN);
         }
 
         try {
-            const content = btoa(unescape(encodeURIComponent(JSON.stringify(data, null, 2))));
+            const content = utf8ToBase64(JSON.stringify(data, null, 2));
 
             const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FILE_PATH}`, {
                 method: 'PUT',
