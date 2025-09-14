@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td><input class="form-control form-control-sm" value="${p.name || ''}" oninput="update('${cat}',${i},'name',this.value)"></td>
                     <td><input class="form-control form-control-sm" value="${p.url || ''}" oninput="update('${cat}',${i},'url',this.value)"></td>
                     <td><input class="form-control form-control-sm" value="${p.description || ''}" oninput="update('${cat}',${i},'description',this.value)"></td>
-                    <td><input class="form-control form-control-sm" value="${p.img || ''}" oninput="update('${cat}',${i},'img',this.value)"></td>
+                    <td><input class="form-control form-control-sm" value="${p.img || ''}" oninput="update('${cat}',${i},'img',this.value)"><input type="file" class="form-control form-control-sm mt-1" onchange="uploadImageToGitHub(this.files[0], '${cat}', ${i})"></td>
                     <td><input class="form-control form-control-sm" value="${p.type || ''}" oninput="update('${cat}',${i},'type',this.value)"></td>
                     <td><button class="btn btn-sm btn-danger" onclick="removeItem('${cat}',${i})">🗑</button></td>
                 </tr>
@@ -153,6 +153,56 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Erreur sauvegarde : ' + err.message);
         }
     }
+
+    async function uploadImageToGitHub(file, cat, index) {
+        if (!file) return;
+        if (!GITHUB_TOKEN) {
+            GITHUB_TOKEN = prompt('🔑 Token GitHub requis :')?.trim() || '';
+            if (!GITHUB_TOKEN) return;
+            localStorage.setItem('githubToken', GITHUB_TOKEN);
+        }
+
+        try {
+            // Lire le fichier en Base64
+            const reader = new FileReader();
+            reader.onload = async () => {
+                const base64Data = reader.result.split(',')[1]; // enlever "data:image/png;base64,"
+
+                // Nom du fichier dans ton dépôt (ici dans un dossier `images/`)
+                const fileName = `images/${Date.now()}_${file.name}`;
+
+                // Upload vers GitHub
+                const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${fileName}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github+json'
+                    },
+                    body: JSON.stringify({
+                        message: `🖼 Ajout image ${file.name}`,
+                        content: base64Data
+                    })
+                });
+
+                if (!res.ok) throw new Error((await res.json()).message || res.statusText);
+                const result = await res.json();
+
+                // URL brute de l’image sur GitHub Pages
+                const imageUrl = `https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/${fileName}`;
+
+                // Mettre à jour ton tableau JSON
+                data[cat][index].img = imageUrl;
+                render();
+
+                alert('✅ Image uploadée avec succès');
+            };
+            reader.readAsDataURL(file);
+        } catch (err) {
+            alert('Erreur upload image : ' + err.message);
+        }
+    }
+
+
 
     // --- Démarrage ---
     initLogin();
