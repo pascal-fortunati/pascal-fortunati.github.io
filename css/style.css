@@ -111,23 +111,6 @@ p {
 }
 
 /* ======================== */
-/*        CODE RAIN         */
-/* ======================== */
-
-.code-rain {
-    font-size: 18px;
-    color: #00d4ff;
-    white-space: nowrap;
-    overflow: hidden;
-}
-
-/* BORDURES CYBER */
-.cyber-border {
-    border: 1px solid rgba(0, 212, 255, 0.5);
-    box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
-}
-
-/* ======================== */
 /*        RESPONSIVE        */
 /* ======================== */
 

@@ -1,3 +1,7 @@
+/* ======================== */
+/*        GLOBAL CSS        */
+/* ======================== */
+
 html {
     scroll-behavior: smooth;
     font-family: 'JetBrains Mono', monospace;
@@ -9,7 +13,10 @@ body {
     background: linear-gradient(135deg, #0d1929 0%, #1a2332 50%, #0d1929 100%);
 }
 
-/* Login container */
+/* ======================== */
+/*     LOGIN CONTAINER      */
+/* ======================== */
+
 #login-container {
     position: fixed;
     inset: 0;
@@ -21,19 +28,28 @@ body {
     z-index: 9999;
 }
 
-/* Masquer quand connecté */
+/* ======================== */
+/*  MASQUER QUAND CONNECTE  */
+/* ======================== */
+
 #login-container[style*="display: none"] {
     display: none !important;
 }
 
-/* Login */
+/* ======================== */
+/*           LOGIN          */
+/* ======================== */
+
 #login-container .card {
     background-color: rgba(12, 18, 28, 0.9);
     color: #dfefff;
     backdrop-filter: blur(10px);
 }
 
-/* Admin container */
+/* ======================== */
+/*     ADMIN CONTAINER      */
+/* ======================== */
+
 #admin-container {
     position: fixed;
     inset: 0;
@@ -42,18 +58,27 @@ body {
     overflow: auto;
 }
 
-/* Afficher quand connecté */
+/* ======================== */
+/* AFFICHER QUAND CONNECTE  */
+/* ======================== */
+
 #admin-container[style*="display: flex"] {
     display: flex !important;
 }
 
-/* Désactiver quand déconnecté */
+/* ========================= */
+/* DESACTIVER QUAND CONNECTE */
+/* ========================= */
+
 body.login-active #admin-container {
     pointer-events: none;
     opacity: 0.3;
 }
 
-/* Body sans classe login-active */
+/* ======================== */
+/*    CLASSE LOGIN-ACTIVE   */
+/* ======================== */
+
 body:not(.login-active) #login-container {
     display: none !important;
 }
@@ -63,6 +88,10 @@ body:not(.login-active) #admin-container {
     background: linear-gradient(135deg, #0d1929 0%, #1a2332 50%, #0d1929 100%);
 }
 
+/* ======================== */
+/*         SIDEBAR          */
+/* ======================== */
+
 .sidebar {
     background-color: rgba(15, 25, 40, 0.9) !important;
     width: 280px;
@@ -70,6 +99,10 @@ body:not(.login-active) #admin-container {
     height: 100vh;
     backdrop-filter: blur(5px);
 }
+
+/* ======================== */
+/*         TABLES           */
+/* ======================== */
 
 .table-dark {
     --bs-table-color: #00d4ff;
@@ -86,6 +119,10 @@ body:not(.login-active) #admin-container {
     backdrop-filter: blur(3px);
 }
 
+/* ======================== */
+/*        NAV LINKS         */
+/* ======================== */
+
 .sidebar a.nav-link {
     color: #00d4ff;
     text-align: center;
@@ -98,13 +135,20 @@ body:not(.login-active) #admin-container {
     color: #0d1929;
 }
 
+/* ======================== */
+/*         TITRES           */
+/* ======================== */
+
 h1,
 h2 {
     color: #00eaff;
     text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
 }
 
-/* Boutons */
+/* ======================== */
+/*         BOUTONS          */
+/* ======================== */
+
 .btn-info {
     background-color: #00d4ff;
     border-color: #00d4ff;
@@ -126,7 +170,10 @@ h2 {
     cursor: not-allowed;
 }
 
-/* Amélioration des inputs */
+/* ======================== */
+/*        FORM INPUTS       */
+/* ======================== */
+
 .form-control-sm {
     background-color: rgba(13, 25, 41, 0.7);
     border-color: rgba(0, 212, 255, 0.3);
@@ -140,7 +187,10 @@ h2 {
     color: #00d4ff;
 }
 
-/* Scrollbar personnalisée */
+/* ======================== */
+/*    SCROLLBAR CUSTOM      */
+/* ======================== */
+
 ::-webkit-scrollbar {
     width: 8px;
 }
